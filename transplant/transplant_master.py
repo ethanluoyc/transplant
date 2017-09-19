@@ -189,6 +189,8 @@ class TransplantMaster:
             out = list(data)
             for idx in range(len(data)):
                 out[idx] = self._encode_values(data[idx])
+        elif data.__class__.__name__ == 'matlab_function':
+            out = ['__function__', data.__class__._name]
         else:
             out = data
         return out
@@ -487,12 +489,13 @@ class Matlab(TransplantMaster):
 
     def _decode_function(self, data):
         """Decode a special list to a wrapper function."""
-
+        print(data[1])
         class classproperty(property):
             def __get__(self, cls, owner):
                 return classmethod(self.fget).__get__(None, owner)()
 
         class matlab_function:
+            _name = data[1]
             def __call__(_self, *args, nargout=-1, **kwargs):
                 # serialize keyword arguments:
                 args += sum(kwargs.items(), ())
