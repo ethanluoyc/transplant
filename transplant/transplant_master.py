@@ -177,6 +177,8 @@ class TransplantMaster:
             return self._encode_sparse_matrix(data)
         elif isinstance(data, self.ProxyObject):
             return self._encode_proxy(data)
+        elif hasattr(data, '__matlab__'):
+            out = self._encode_values(MatlabStruct(data.__matlab__()))
         elif isinstance(data, MatlabStruct):
             out = ["__struct__", {}]
             for key in data:
@@ -489,7 +491,6 @@ class Matlab(TransplantMaster):
 
     def _decode_function(self, data):
         """Decode a special list to a wrapper function."""
-        print(data[1])
         class classproperty(property):
             def __get__(self, cls, owner):
                 return classmethod(self.fget).__get__(None, owner)()
